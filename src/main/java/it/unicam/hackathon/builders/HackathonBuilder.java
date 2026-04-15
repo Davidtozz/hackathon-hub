@@ -1,8 +1,8 @@
 package it.unicam.hackathon;
 
-import it.unicam.hackathon.models.Hackathon;
-import it.unicam.hackathon.models.enums.StatoHackathon;
-import it.unicam.hackathon.models.Organizzatore;
+import it.unicam.hackathon.actors.Hackathon;
+import it.unicam.hackathon.enums.StatoHackathon;
+import it.unicam.hackathon.actors.Organizzatore;
 import org.springframework.stereotype.Component;
 import java.util.Date;
 

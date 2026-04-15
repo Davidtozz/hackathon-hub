@@ -3,9 +3,7 @@ package it.unicam.hackathon.models;
 import java.util.List;
 
 public class UtenteSenzaTeam extends BaseUtente {
-
-    private final TeamCreationService teamCreationService = new TeamCreationService();
-
+    
     private List<Invito> visualizzaInviti() {
         return List.of(); // logica per recuperare gli inviti dell'utente tramite ticket repository
     }
