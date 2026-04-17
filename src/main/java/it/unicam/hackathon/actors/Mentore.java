@@ -1,4 +1,4 @@
-package it.unicam.hackathon.models;
+package it.unicam.hackathon.actors;
 
 import java.util.Date;
 import java.util.List;

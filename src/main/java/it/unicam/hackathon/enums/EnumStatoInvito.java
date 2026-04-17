@@ -1,6 +1,6 @@
-package it.unicam.hackathon.actors;
+package it.unicam.hackathon.enums;
 
-enum EnumStatoInvito {
+public enum EnumStatoInvito {
     IN_ATTESA,
     ACCETTATO,
     RIFIUTATO

@@ -1,5 +1,6 @@
-package it.unicam.hackathon.actors;
+package it.unicam.hackathon.interfaces;
 
+import it.unicam.hackathon.actors.BaseAttore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -8,7 +9,7 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
-public abstract class BaseUtente extends BaseModel{
+public abstract class BaseUtente extends BaseAttore {
     protected String nome;
     protected String cognome;
     protected String email;

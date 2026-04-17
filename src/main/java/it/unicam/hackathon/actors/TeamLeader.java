@@ -1,4 +1,4 @@
-package it.unicam.hackathon.models;
+package it.unicam.hackathon.actors;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

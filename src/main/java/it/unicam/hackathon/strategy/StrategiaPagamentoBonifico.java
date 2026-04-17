@@ -2,10 +2,10 @@ package it.unicam.hackathon.strategy;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PagamentoBonifico implements StrategiaPagamento {
+public class StrategiaPagamentoBonifico implements StrategiaPagamento {
 
     @Override
-    public void elaboraPagamento(double importo) {
+    public boolean elaboraPagamento(double importo) {
         return importo > 0;
     }
 }

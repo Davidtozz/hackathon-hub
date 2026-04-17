@@ -1,4 +1,4 @@
-package it.unicam.hackathon.models;
+package it.unicam.hackathon.actors;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class Team extends BaseModel{
+public class Team extends BaseAttore {
     private String nome;
     private TeamLeader teamLeader;
     private MembroDelTeam[] membriDelTeam;

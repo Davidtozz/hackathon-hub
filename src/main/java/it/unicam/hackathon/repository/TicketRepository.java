@@ -1,8 +1,9 @@
 package it.unicam.hackathon.repository;
 
-import it.unicam.hackathon.models.Ticket;
+import it.unicam.hackathon.actors.Ticket;
+import it.unicam.hackathon.interfaces.IRepository;
 
-public final class TicketRepository implements IRepository<Ticket>{
+public final class TicketRepository implements IRepository<Ticket> {
     @Override
     public Ticket create(Ticket entity) {
         return null;
@@ -19,7 +20,7 @@ public final class TicketRepository implements IRepository<Ticket>{
     }
 
     @Override
-    public void delete(String id) {
+    public void delete(Integer id) {
 
     }
 //classe di placeholder

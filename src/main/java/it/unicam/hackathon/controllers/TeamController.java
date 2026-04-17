@@ -1,22 +1,20 @@
 package it.unicam.hackathon.controllers;
 
-import it.unicam.hackathon.models.Team;
-import it.unicam.hackathon.models.TeamLeader;
-import it.unicam.hackathon.models.UtenteSenzaTeam;
+import it.unicam.hackathon.actors.Team;
+import it.unicam.hackathon.actors.TeamLeader;
+import it.unicam.hackathon.actors.UtenteSenzaTeam;
 
 /**
  * Responsabile solo della creazione del team e della promozione del creatore a TeamLeader.
  */
 public class TeamController {
 
-    public Team createTeam(String nomeTeam, UtenteSenzaTeam creatore) {
-        TeamLeader teamLeader = promoteToTeamLeader(creatore);
+    public static TeamLeader creaTeam(String nomeTeam, UtenteSenzaTeam creatore) {
+        TeamLeader teamLeader = new TeamLeader(creatore);
         Team team = new Team(nomeTeam, teamLeader);
         teamLeader.setTeamDiAppartenenza(team);
-        return team;
+        return teamLeader;
     }
 
-    private TeamLeader promoteToTeamLeader(UtenteSenzaTeam utente) {
-        return new TeamLeader(utente);
-    }
+    public static create()
 }

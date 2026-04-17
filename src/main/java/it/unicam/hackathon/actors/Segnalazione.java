@@ -1,10 +1,10 @@
-package it.unicam.hackathon.models;
+package it.unicam.hackathon.actors;
 
-import it.unicam.hackathon.models.enums.EnumStato;
+import it.unicam.hackathon.enums.EnumStato;
 import lombok.Data;
 
 @Data
-public class Segnalazione extends BaseModel {
+public class Segnalazione extends BaseAttore {
     private String nome;
     private String descrizione;
     private EnumStato statoSegnalazione;

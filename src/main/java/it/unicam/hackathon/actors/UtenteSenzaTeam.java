@@ -1,22 +1,31 @@
-package it.unicam.hackathon.models;
+package it.unicam.hackathon.actors;
 
+import it.unicam.hackathon.controllers.TeamController;
+import it.unicam.hackathon.enums.EnumStatoInvito;
+import it.unicam.hackathon.interfaces.BaseUtente;
+import it.unicam.hackathon.inviti.AccettaInvitoService;
+import it.unicam.hackathon.inviti.IAccettaInvito;
+import lombok.NonNull;
+
+import java.lang.management.GarbageCollectorMXBean;
 import java.util.List;
 
 public class UtenteSenzaTeam extends BaseUtente {
-    
-    private List<Invito> visualizzaInviti() {
-        return List.of(); // logica per recuperare gli inviti dell'utente tramite ticket repository
+    private final IAccettaInvito accettaInvito = new AccettaInvitoService();
+
+    public List<Invito> accediSezioneInviti() {
+        return accettaInvito.visualizzaInviti(getId());
     }
 
-    private void accettaInvito(Invito i) {
+    public void accettaInvito(@NonNull Invito i) {
         i.setStato(EnumStatoInvito.ACCETTATO);
     }
 
-    private void rifiutaInvito(Invito i) {
+    public void rifiutaInvito(@NonNull Invito i) {
         i.setStato(EnumStatoInvito.RIFIUTATO);
     }
 
-    public Team creaTeam(String nomeTeam) {
-        return teamCreationService.createTeam(nomeTeam, this);
+    public TeamLeader creaTeam(@NonNull String nomeTeam) {
+        return TeamController.creaTeam(nomeTeam, this);
     }
 }

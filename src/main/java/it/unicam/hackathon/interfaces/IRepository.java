@@ -1,8 +1,8 @@
-package it.unicam.hackathon.repository;
+package it.unicam.hackathon.interfaces;
 
 public interface IRepository<T> {
     T create(T entity);
     T read(String id);
     T update(T entity);
-    void delete(String id);
+    void delete(Integer id);
 }

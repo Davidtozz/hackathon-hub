@@ -1,4 +1,4 @@
-package it.unicam.hackathon;
+package it.unicam.hackathon.builders;
 
 import it.unicam.hackathon.actors.Hackathon;
 import it.unicam.hackathon.enums.StatoHackathon;

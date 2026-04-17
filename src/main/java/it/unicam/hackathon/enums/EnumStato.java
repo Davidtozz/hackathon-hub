@@ -1,4 +1,4 @@
-package it.unicam.hackathon.models.enums;
+package it.unicam.hackathon.enums;
 
 public enum EnumStato {
     APERTO,
