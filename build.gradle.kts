@@ -1,5 +1,6 @@
 plugins {
 	java
+	application
 	id("org.springframework.boot") version "4.0.4"
 	id("io.spring.dependency-management") version "1.1.7"
 }
@@ -24,7 +25,7 @@ repositories {
 }
 
 dependencies {
-	implementation("org.springframework.boot:spring-boot-starter")
+	implementation("org.springframework.boot:spring-boot-starter-web")
 	compileOnly("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -33,4 +34,8 @@ dependencies {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+application {
+	mainClass = "it.unicam.hackathon.HackathonApplication"
 }
