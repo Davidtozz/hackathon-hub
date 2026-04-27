@@ -1,31 +1,20 @@
 package it.unicam.hackathon.actors;
 
-import it.unicam.hackathon.controllers.TeamController;
-import it.unicam.hackathon.enums.EnumStatoInvito;
-import it.unicam.hackathon.interfaces.BaseUtente;
-import it.unicam.hackathon.inviti.AccettaInvitoService;
-import it.unicam.hackathon.inviti.IAccettaInvito;
-import lombok.NonNull;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
-import java.lang.management.GarbageCollectorMXBean;
+import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Utente registrato che non appartiene ancora a nessun team.
+ * Puo' ricevere inviti e decidere di crearne uno proprio.
+ */
+@EqualsAndHashCode(callSuper = true)
+@Data
+@NoArgsConstructor
 public class UtenteSenzaTeam extends BaseUtente {
-    private final IAccettaInvito accettaInvito = new AccettaInvitoService();
 
-    public List<Invito> accediSezioneInviti() {
-        return accettaInvito.visualizzaInviti(getId());
-    }
-
-    public void accettaInvito(@NonNull Invito i) {
-        i.setStato(EnumStatoInvito.ACCETTATO);
-    }
-
-    public void rifiutaInvito(@NonNull Invito i) {
-        i.setStato(EnumStatoInvito.RIFIUTATO);
-    }
-
-    public TeamLeader creaTeam(@NonNull String nomeTeam) {
-        return TeamController.creaTeam(nomeTeam, this);
-    }
+    private List<Invito> inviti = new ArrayList<>();
 }

@@ -2,12 +2,21 @@ package it.unicam.hackathon.actors;
 
 import it.unicam.hackathon.enums.StatoHackathon;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+/**
+ * Un Hackathon: evento gestito da un Organizzatore, a cui partecipano Team,
+ * valutati da Giudici, supportati da Mentori.
+ */
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class Hackathon {
-    private Integer id;
+@NoArgsConstructor
+public class Hackathon extends BaseAttore {
     private String nome;
     private String regolamento;
     private String argomento;
@@ -16,15 +25,15 @@ public class Hackathon {
     private Date dataFine;
     private String luogo;
     private Double premio;
-    private Integer dimesioneMaxTeam;
-    private Integer dimesioneMinTeam;
+    private Integer dimensioneMaxTeam;
+    private Integer dimensioneMinTeam;
     private Integer numMaxPersone;
     private Integer numMinPersone;
-    private MembroDelloStaff organizzatore;
-    private MembroDelloStaff giudice;
-    private MembroDelloStaff[] mentori;
-    private Team[] teams;
+    private Organizzatore organizzatore;
+    private Giudice giudice;
+    private List<Mentore> mentori = new ArrayList<>();
+    private List<Team> teams = new ArrayList<>();
     private Team vincitore;
     private StatoHackathon stato;
-    private Sottomissione[] sottomissioni;
+    private List<Sottomissione> sottomissioni = new ArrayList<>();
 }
