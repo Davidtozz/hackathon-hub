@@ -1,15 +1,25 @@
 package it.unicam.hackathon.builders;
 
 import it.unicam.hackathon.actors.Hackathon;
-import it.unicam.hackathon.enums.StatoHackathon;
 import it.unicam.hackathon.actors.Organizzatore;
+import it.unicam.hackathon.enums.StatoHackathon;
+import it.unicam.hackathon.exception.HackathonException;
 import org.springframework.stereotype.Component;
+
 import java.util.Date;
 
+/**
+ * Builder Pattern per la creazione di un Hackathon in modo fluente.
+ */
 @Component
-public final class HackathonBuilder {
+public class HackathonBuilder {
 
-    private final Hackathon hackathon = new Hackathon();
+    private Hackathon hackathon = new Hackathon();
+
+    public HackathonBuilder reset() {
+        this.hackathon = new Hackathon();
+        return this;
+    }
 
     public HackathonBuilder nome(String nome) {
         hackathon.setNome(nome);
@@ -52,22 +62,22 @@ public final class HackathonBuilder {
     }
 
     public HackathonBuilder dimensioneMaxTeam(Integer max) {
-        hackathon.setDimesioneMaxTeam(max);
+        hackathon.setDimensioneMaxTeam(max);
         return this;
     }
 
     public HackathonBuilder dimensioneMinTeam(Integer min) {
-        hackathon.setDimesioneMinTeam(min);
+        hackathon.setDimensioneMinTeam(min);
         return this;
     }
 
-    public HackathonBuilder numMaxTeam(int max) {
-        hackathon.setDimesioneMaxTeam(max);
+    public HackathonBuilder numMaxPersone(Integer max) {
+        hackathon.setNumMaxPersone(max);
         return this;
     }
 
-    public HackathonBuilder numMinTeam(int min) {
-        hackathon.setDimesioneMinTeam(min);
+    public HackathonBuilder numMinPersone(Integer min) {
+        hackathon.setNumMinPersone(min);
         return this;
     }
 
@@ -80,9 +90,12 @@ public final class HackathonBuilder {
         if (hackathon.getNome() == null || hackathon.getOrganizzatore() == null
                 || hackathon.getDataInizio() == null || hackathon.getDataFine() == null
                 || hackathon.getScadenzaIscrizioni() == null) {
-            throw new IllegalStateException("Campi obbligatori mancanti per la creazione dell'Hackathon.");
+            throw new HackathonException("Campi obbligatori mancanti per la creazione dell'Hackathon.");
         }
         hackathon.setStato(StatoHackathon.ISCRIZIONI_APERTE);
-        return hackathon;
+        Hackathon built = this.hackathon;
+        // reset automatico per riutilizzo del builder
+        this.hackathon = new Hackathon();
+        return built;
     }
 }

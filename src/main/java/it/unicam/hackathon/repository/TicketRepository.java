@@ -1,27 +1,21 @@
 package it.unicam.hackathon.repository;
 
 import it.unicam.hackathon.actors.Ticket;
-import it.unicam.hackathon.interfaces.IRepository;
+import org.springframework.stereotype.Repository;
 
-public final class TicketRepository implements IRepository<Ticket> {
-    @Override
-    public Ticket create(Ticket entity) {
-        return null;
+import java.util.List;
+
+/**
+ * Repository in-memory per i ticket di supporto.
+ */
+@Repository
+public class TicketRepository extends AbstractInMemoryRepository<Ticket> {
+
+    public List<Ticket> findByMentore(Integer idMentore) {
+        return storage.values().stream()
+                .filter(t -> t.getMentoreAssegnato() != null
+                        && t.getMentoreAssegnato().getId() != null
+                        && t.getMentoreAssegnato().getId().equals(idMentore))
+                .toList();
     }
-
-    @Override
-    public Ticket read(String id) {
-        return null;
-    }
-
-    @Override
-    public Ticket update(Ticket entity) {
-        return null;
-    }
-
-    @Override
-    public void delete(Integer id) {
-
-    }
-//classe di placeholder
 }

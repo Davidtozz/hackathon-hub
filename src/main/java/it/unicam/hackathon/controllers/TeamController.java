@@ -1,20 +1,57 @@
 package it.unicam.hackathon.controllers;
 
+import it.unicam.hackathon.actors.BaseUtente;
 import it.unicam.hackathon.actors.Team;
 import it.unicam.hackathon.actors.TeamLeader;
 import it.unicam.hackathon.actors.UtenteSenzaTeam;
+import it.unicam.hackathon.interfaces.ICreazioneTeam;
+import it.unicam.hackathon.service.TeamService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
- * Responsabile solo della creazione del team e della promozione del creatore a TeamLeader.
+ * Controller per la gestione dei team. Implementa l'interfaccia boundary ICreazioneTeam.
  */
-public class TeamController {
+@Component
+public class TeamController implements ICreazioneTeam {
 
-    public static TeamLeader creaTeam(String nomeTeam, UtenteSenzaTeam creatore) {
-        TeamLeader teamLeader = new TeamLeader(creatore);
-        Team team = new Team(nomeTeam, teamLeader);
-        teamLeader.setTeamDiAppartenenza(team);
-        return teamLeader;
+    private final TeamService teamService;
+
+    @Autowired
+    public TeamController(TeamService teamService) {
+        this.teamService = teamService;
     }
 
-    public static create()
+    /**
+     * Crea un nuovo team promuovendo un UtenteSenzaTeam a TeamLeader.
+     */
+    public Team creaTeam(String nomeTeam, UtenteSenzaTeam creatore) {
+        TeamLeader leader = new TeamLeader(creatore);
+        return teamService.creaNuovoTeam(nomeTeam, leader);
+    }
+
+    // === ICreazioneTeam ===
+
+    @Override
+    public void mostraModaleCreazioneTeam() { }
+
+    @Override
+    public void inserisciInfoTeam(String nomeTeam) { }
+
+    @Override
+    public void mostraModuloInviti() { }
+
+    @Override
+    public void inserisciDatiMembri(List<BaseUtente> membri) { }
+
+    @Override
+    public void confermaCreazione() { }
+
+    @Override
+    public void notificaDatiGiaPresenti() { }
+
+    @Override
+    public void mostraMessaggioSuccesso() { }
 }

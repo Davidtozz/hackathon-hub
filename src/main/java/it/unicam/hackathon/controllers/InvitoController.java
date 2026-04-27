@@ -1,30 +1,68 @@
 package it.unicam.hackathon.controllers;
 
 import it.unicam.hackathon.actors.Invito;
-import it.unicam.hackathon.inviti.IAccettaInvito;
-import it.unicam.hackathon.repository.InvitoRepository;
+import it.unicam.hackathon.interfaces.IAccettaInvito;
+import it.unicam.hackathon.interfaces.IInvito;
+import it.unicam.hackathon.service.InvitoService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-public final class InvitoController implements IAccettaInvito {
+/**
+ * Controller per la gestione degli inviti. Implementa IInvito e IAccettaInvito.
+ */
+@Component
+public class InvitoController implements IInvito, IAccettaInvito {
 
-    private InvitoRepository invitoRepository;
+    private final InvitoService invitoService;
 
-    public InvitoController(InvitoRepository invitoRepository) {
-        this.invitoRepository = invitoRepository;
+    @Autowired
+    public InvitoController(InvitoService invitoService) {
+        this.invitoService = invitoService;
     }
 
-    public List<Invito> getInviti(Integer idUtente) {
-        return null;
+    public void inviaInvito(String nome, String cognome, String email) {
+        Invito invito = invitoService.elaboraInvito(nome, cognome, email);
+        invitoService.inviaEmailInvito(invito);
+    }
+
+    public void rispondiInvito(Integer idInvito, boolean accetta) {
+        invitoService.rispondiInvito(idInvito, accetta);
+    }
+
+    // === IInvito ===
+
+    @Override
+    public void richiedeInvioInvito() { }
+
+    @Override
+    public void mostraFormInvito() { }
+
+    @Override
+    public void inserisciDatiUtente(String nome, String cognome, String email) {
+        inviaInvito(nome, cognome, email);
     }
 
     @Override
-    public List<Invito> recuperaInviti(Integer utenteId) {
-        return List.of();
+    public void mostraErroreDati() { }
+
+    @Override
+    public void notificaInvioInvito() { }
+
+    // === IAccettaInvito ===
+
+    @Override
+    public List<Invito> visualizzaInviti(Integer idUtente) {
+        return invitoService.visualizzaInvitiByUtente(idUtente);
     }
 
     @Override
-    public List<Invito> visualizzaInviti(Integer utenteId) {
-        return List.of();
-    }
+    public void selezionaInvito(Integer idInvito) { }
+
+    @Override
+    public void confermaAccettazione() { }
+
+    @Override
+    public void confermaRifiuto() { }
 }
