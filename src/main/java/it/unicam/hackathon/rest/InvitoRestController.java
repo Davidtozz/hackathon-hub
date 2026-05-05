@@ -38,7 +38,8 @@ public class InvitoRestController {
     /** POST /api/inviti — crea un nuovo invito. */
     @PostMapping
     public ResponseEntity<Invito> creaInvito(@RequestBody InvitoRequest req) {
-        Invito i = invitoService.elaboraInvito(req.getNome(), req.getCognome(), req.getEmail());
+        Invito i = invitoService.elaboraInvito(
+                req.getNome(), req.getCognome(), req.getEmail(), req.getIdTeam());
         return ResponseEntity.ok(i);
     }
 

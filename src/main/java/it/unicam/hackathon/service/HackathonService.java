@@ -126,8 +126,12 @@ public class HackathonService {
                 .orElseThrow(() -> new HackathonException("Hackathon non trovato: " + idHackathon));
         Team t = teamRepository.findById(idTeam)
                 .orElseThrow(() -> new HackathonException("Team non trovato: " + idTeam));
-        if (!h.getTeams().contains(t)) {
-            throw new HackathonException("Il team non e' iscritto a questo hackathon");
+        boolean iscritto = h.getTeams() != null && h.getTeams().stream()
+                .anyMatch(team -> team != null && team.getId() != null && team.getId().equals(idTeam));
+        if (!iscritto) {
+            throw new HackathonException("Il team con id " + idTeam
+                    + " non e' iscritto all'hackathon " + idHackathon
+                    + ". Iscrivilo prima con POST /api/hackathon/" + idHackathon + "/iscrivi.");
         }
         h.setVincitore(t);
         hackathonRepository.save(h);

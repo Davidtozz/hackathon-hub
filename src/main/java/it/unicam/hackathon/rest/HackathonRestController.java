@@ -216,7 +216,13 @@ public class HackathonRestController {
             pagamentoOk = metodo.pagaPremio(req.getImportoPremio(), req.getIntestatario());
         }
 
+        assert req.getImportoPremio() != null;
+        assert req.getMetodoPagamento() != null;
         return ResponseEntity.ok(Map.of(
+                "idTeam", req.getIdTeam(),
+                "importoPremio", req.getImportoPremio(),
+                "intestatario", req.getIntestatario(),
+                "metodoPagamento", req.getMetodoPagamento(),
                 "vincitoreAssegnato", true,
                 "pagamentoEseguito", pagamentoOk
         ));

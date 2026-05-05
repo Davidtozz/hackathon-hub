@@ -22,8 +22,8 @@ public class InvitoController implements IInvito, IAccettaInvito {
         this.invitoService = invitoService;
     }
 
-    public void inviaInvito(String nome, String cognome, String email) {
-        Invito invito = invitoService.elaboraInvito(nome, cognome, email);
+    public void inviaInvito(String nome, String cognome, String email, Integer idTeam) {
+        Invito invito = invitoService.elaboraInvito(nome, cognome, email, idTeam);
         invitoService.inviaEmailInvito(invito);
     }
 
@@ -40,8 +40,8 @@ public class InvitoController implements IInvito, IAccettaInvito {
     public void mostraFormInvito() { }
 
     @Override
-    public void inserisciDatiUtente(String nome, String cognome, String email) {
-        inviaInvito(nome, cognome, email);
+    public void inserisciDatiUtente(String nome, String cognome, String email, Integer idTeam) {
+        inviaInvito(nome, cognome, email, idTeam);
     }
 
     @Override
