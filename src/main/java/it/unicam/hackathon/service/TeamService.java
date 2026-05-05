@@ -8,8 +8,12 @@ import it.unicam.hackathon.repository.TeamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * Service per la gestione dei team: creazione, aggiunta membri, eliminazione.
+ * Nella 4a iterazione vengono aggiunti i metodi per recuperare i team di un leader,
+ * rimuovere team e abbandonare il gruppo.
  */
 @Service
 public class TeamService {
@@ -65,12 +69,64 @@ public class TeamService {
     }
 
     /**
-     * Elimina un team.
+     * Elimina un team. Ripulisce anche il team di appartenenza del leader e dei membri.
      */
     public void eliminaTeam(Integer idTeam) {
-        if (!teamRepository.existsById(idTeam)) {
-            throw new HackathonException("Team non trovato: " + idTeam);
+        Team team = teamRepository.findById(idTeam)
+                .orElseThrow(() -> new HackathonException("Team non trovato: " + idTeam));
+        if (team.getTeamLeader() != null) {
+            team.getTeamLeader().setTeamDiAppartenenza(null);
         }
-        teamRepository.deleteById(idTeam);
+        if (team.getMembriDelTeam() != null) {
+            for (MembroDelTeam m : team.getMembriDelTeam()) {
+                m.setTeam(null);
+            }
+        }
+        teamRepository.cancellaPerId(idTeam);
+    }
+
+    // ============================================================
+    // === METODI AGGIUNTI NELLA 4a ITERAZIONE                  ===
+    // ============================================================
+
+    /**
+     * Restituisce tutti i team gestiti da un certo TeamLeader.
+     * Sequence diagram: "Eliminazione Team".
+     */
+    public List<Team> ottieniTeamsPerLeader(Integer idLeader) {
+        if (idLeader == null) {
+            throw new HackathonException("Id leader obbligatorio");
+        }
+        return teamRepository.findByLeader(idLeader);
+    }
+
+    /**
+     * Rimuove un team dal sistema. Alias semantico di eliminaTeam(),
+     * mantenuto per coerenza con il sequence diagram della 4a iterazione.
+     */
+    public void rimuoviTeam(Integer idTeam) {
+        eliminaTeam(idTeam);
+    }
+
+    /**
+     * Rimuove un membro dal team a cui appartiene.
+     * Aggiorna sia il modello sia la persistenza.
+     * Sequence diagram: "Lascia Gruppo".
+     */
+    public void rimuoviMembroDaTeam(Integer idMembro) {
+        if (idMembro == null) {
+            throw new HackathonException("Id membro obbligatorio");
+        }
+        Team team = teamRepository.findByMembro(idMembro)
+                .orElseThrow(() -> new HackathonException(
+                        "Nessun team trovato per il membro: " + idMembro));
+        MembroDelTeam membro = team.getMembriDelTeam().stream()
+                .filter(m -> idMembro.equals(m.getId()))
+                .findFirst()
+                .orElseThrow(() -> new HackathonException(
+                        "Membro non trovato nel team: " + idMembro));
+        team.rimuoviMembro(membro);
+        membro.setTeam(null);
+        teamRepository.save(team);
     }
 }

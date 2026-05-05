@@ -5,6 +5,8 @@ import it.unicam.hackathon.actors.Team;
 import it.unicam.hackathon.actors.TeamLeader;
 import it.unicam.hackathon.actors.UtenteSenzaTeam;
 import it.unicam.hackathon.interfaces.ICreazioneTeam;
+import it.unicam.hackathon.interfaces.IEliminazioneTeam;
+import it.unicam.hackathon.interfaces.ILasciaGruppo;
 import it.unicam.hackathon.service.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -12,10 +14,13 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 /**
- * Controller per la gestione dei team. Implementa l'interfaccia boundary ICreazioneTeam.
+ * Controller per la gestione dei team.
+ * Implementa le interfacce boundary definite nei sequence diagram:
+ *   - 1a iterazione: ICreazioneTeam
+ *   - 4a iterazione: IEliminazioneTeam, ILasciaGruppo
  */
 @Component
-public class TeamController implements ICreazioneTeam {
+public class TeamController implements ICreazioneTeam, IEliminazioneTeam, ILasciaGruppo {
 
     private final TeamService teamService;
 
@@ -31,6 +36,32 @@ public class TeamController implements ICreazioneTeam {
         TeamLeader leader = new TeamLeader(creatore);
         return teamService.creaNuovoTeam(nomeTeam, leader);
     }
+
+    // ============================================================
+    // === METODI PUBBLICI AGGIUNTI NELLA 4a ITERAZIONE         ===
+    // ============================================================
+
+    /**
+     * Restituisce i team gestiti da un TeamLeader.
+     * Sequence diagram: "Eliminazione Team".
+     */
+    public List<Team> getTeamsByLeader(Integer idLeader) {
+        return teamService.ottieniTeamsPerLeader(idLeader);
+    }
+
+    /**
+     * Fa abbandonare un team a un suo membro.
+     * Sequence diagram: "Lascia Gruppo".
+     * Implementa anche ILasciaGruppo.abbandonaGruppo(Integer).
+     */
+    @Override
+    public void abbandonaGruppo(Integer idMembro) {
+        teamService.rimuoviMembroDaTeam(idMembro);
+    }
+
+    // ============================================================
+    // === Implementazioni interfacce boundary                  ===
+    // ============================================================
 
     // === ICreazioneTeam ===
 
@@ -54,4 +85,40 @@ public class TeamController implements ICreazioneTeam {
 
     @Override
     public void mostraMessaggioSuccesso() { }
+
+    // === IEliminazioneTeam (4a iterazione) ===
+
+    @Override
+    public void mostraTeams() { }
+
+    @Override
+    public void visualizzaElencoTeams(List<Team> teams) { }
+
+    @Override
+    public void eliminaTeam(Integer idTeam) {
+        teamService.eliminaTeam(idTeam);
+    }
+
+    @Override
+    public void notificaEliminazione() { }
+
+    @Override
+    public void mostraMessaggioConferma() { }
+
+    // === ILasciaGruppo (4a iterazione) ===
+
+    @Override
+    public void richiediAbbandonoGruppo() { }
+
+    @Override
+    public void mostraConfermaAbbandono() { }
+
+    // abbandonaGruppo(Integer idMembro) e' gia' implementato sopra come metodo
+    // pubblico: la stessa firma soddisfa anche l'override di ILasciaGruppo.
+
+    @Override
+    public void notificaAbbandono() { }
+
+    // mostraMessaggioConferma() e' gia' implementato in IEliminazioneTeam:
+    // la stessa implementazione vale anche qui (stessa firma).
 }

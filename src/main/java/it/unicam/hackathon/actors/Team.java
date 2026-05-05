@@ -1,5 +1,6 @@
 package it.unicam.hackathon.actors;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -16,8 +17,15 @@ import java.util.List;
 @NoArgsConstructor
 public class Team extends BaseAttore {
     private String nome;
+
+    /** Leader del team. JsonIgnoreProperties rompe il loop con teamDiAppartenenza. */
+    @JsonIgnoreProperties({"teamDiAppartenenza", "team", "iMieiHackathon"})
     private TeamLeader teamLeader;
+
+    /** Membri del team. Senza referenza all'oggetto team per evitare loop. */
+    @JsonIgnoreProperties({"team"})
     private List<MembroDelTeam> membriDelTeam = new ArrayList<>();
+
     private List<Invito> inviti = new ArrayList<>();
     private Date dataCreazione = new Date();
 

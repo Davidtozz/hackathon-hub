@@ -9,8 +9,12 @@ import it.unicam.hackathon.repository.TeamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * Service per la gestione degli hackathon: creazione, iscrizioni, chiusura, assegnazione vincitore.
+ * Nella 4a iterazione vengono aggiunti i metodi di modifica, eliminazione e visualizzazione
+ * "personalizzata" per utente.
  */
 @Service
 public class HackathonService {
@@ -95,6 +99,7 @@ public class HackathonService {
 
     /**
      * Assegna un team come vincitore dell'hackathon.
+     * Sequence diagram: "Assegna Vincitore".
      */
     public void assegnaVincitore(Integer idHackathon, Integer idTeam) {
         Hackathon h = hackathonRepository.findById(idHackathon)
@@ -106,5 +111,84 @@ public class HackathonService {
         }
         h.setVincitore(t);
         hackathonRepository.save(h);
+    }
+
+    // ============================================================
+    // === METODI AGGIUNTI NELLA 4a ITERAZIONE                  ===
+    // ============================================================
+
+    /**
+     * Restituisce tutti gli hackathon creati da un certo organizzatore.
+     * Sequence diagram: "Modifica Hackathon".
+     */
+    public List<Hackathon> ottieniHackathonPerOrganizzatore(Integer idOrganizzatore) {
+        if (idOrganizzatore == null) {
+            throw new HackathonException("Id organizzatore obbligatorio");
+        }
+        return hackathonRepository.findByOrganizzatore(idOrganizzatore);
+    }
+
+    /**
+     * Restituisce i dati completi di un hackathon dato il suo id.
+     * Sequence diagram: "Modifica Hackathon".
+     */
+    public Hackathon ottieniDettagli(Integer idHackathon) {
+        return hackathonRepository.findById(idHackathon)
+                .orElseThrow(() -> new HackathonException("Hackathon non trovato: " + idHackathon));
+    }
+
+    /**
+     * Verifica che i dati aggiornati di un hackathon siano validi.
+     * Sequence diagram: "Modifica Hackathon" -> alt[dati non validi].
+     */
+    public boolean verificaDatiInseriti(Hackathon datiAggiornati) {
+        return controllaDati(datiAggiornati);
+    }
+
+    /**
+     * Aggiorna un hackathon esistente con i nuovi dati.
+     * Sequence diagram: "Modifica Hackathon".
+     */
+    public Hackathon aggiornaHackathon(Hackathon datiAggiornati) {
+        if (!verificaDatiInseriti(datiAggiornati)) {
+            throw new HackathonException("Dati hackathon non validi");
+        }
+        if (datiAggiornati.getId() == null
+                || !hackathonRepository.existsById(datiAggiornati.getId())) {
+            throw new HackathonException("Hackathon da aggiornare non trovato");
+        }
+        return hackathonRepository.update(datiAggiornati);
+    }
+
+    /**
+     * Rimuove un hackathon dal sistema.
+     * Sequence diagram: "Eliminazione Hackathon".
+     */
+    public void rimuoviHackathon(Integer idHackathon) {
+        if (idHackathon == null || !hackathonRepository.existsById(idHackathon)) {
+            throw new HackathonException("Hackathon non trovato: " + idHackathon);
+        }
+        hackathonRepository.cancellaPerId(idHackathon);
+    }
+
+    /**
+     * Restituisce tutti gli hackathon a cui un utente partecipa,
+     * in qualunque ruolo (organizzatore, giudice, mentore, leader, membro).
+     * Sequence diagram: "Visualizza I Miei Hackathon".
+     */
+    public List<Hackathon> ottieniHackathonUtente(Integer idUtente) {
+        if (idUtente == null) {
+            throw new HackathonException("Id utente obbligatorio");
+        }
+        return hackathonRepository.trovaPerUtenteId(idUtente);
+    }
+
+    /**
+     * Restituisce la lista dei team partecipanti a un hackathon.
+     * Sequence diagram: "Assegna Vincitore".
+     */
+    public List<Team> ottieniTeamHackathon(Integer idHackathon) {
+        Hackathon h = ottieniDettagli(idHackathon);
+        return h.getTeams();
     }
 }

@@ -1,5 +1,6 @@
 package it.unicam.hackathon.actors;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -15,6 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 public class Giudice extends MembroDelloStaff {
 
+    @JsonIgnoreProperties({"valutazioni", "team", "hackathon"})
     private List<Sottomissione> sottomissioniAssegnate = new ArrayList<>();
 
     /**

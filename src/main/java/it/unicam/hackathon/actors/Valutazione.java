@@ -1,5 +1,6 @@
 package it.unicam.hackathon.actors;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -16,7 +17,11 @@ public class Valutazione extends BaseAttore {
     private String commento;
     private double punteggio;
     private Date dataValutazione = new Date();
+
+    @JsonIgnoreProperties({"valutazioni", "team", "hackathon"})
     private Sottomissione sottomissione;
+
+    @JsonIgnoreProperties({"sottomissioniAssegnate", "hackathon"})
     private Giudice giudice;
 
     public double getPunteggio() {

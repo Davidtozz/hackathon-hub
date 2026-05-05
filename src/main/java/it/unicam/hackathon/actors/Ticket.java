@@ -1,5 +1,6 @@
 package it.unicam.hackathon.actors;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import it.unicam.hackathon.enums.EnumStato;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -15,7 +16,11 @@ public class Ticket extends BaseAttore {
     private String descrizione;
     private String risposta;
     private EnumStato stato = EnumStato.APERTO;
+
+    @JsonIgnoreProperties({"ticketAssegnati", "hackathon"})
     private Mentore mentoreAssegnato;
+
+    @JsonIgnoreProperties({"team"})
     private MembroDelTeam autore;
 
     /**

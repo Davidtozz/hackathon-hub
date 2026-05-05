@@ -4,9 +4,13 @@ import it.unicam.hackathon.actors.Hackathon;
 import it.unicam.hackathon.actors.Organizzatore;
 import it.unicam.hackathon.actors.Team;
 import it.unicam.hackathon.builders.HackathonBuilder;
+import it.unicam.hackathon.interfaces.IAssegnaVincitore;
 import it.unicam.hackathon.interfaces.ICreazioneHackathon;
 import it.unicam.hackathon.interfaces.IElencoHackathon;
+import it.unicam.hackathon.interfaces.IEliminazioneHackathon;
 import it.unicam.hackathon.interfaces.IIscrizioneHackathon;
+import it.unicam.hackathon.interfaces.IModificaHackathon;
+import it.unicam.hackathon.interfaces.IVisualizzaHackathon;
 import it.unicam.hackathon.repository.HackathonRepository;
 import it.unicam.hackathon.service.HackathonService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +21,21 @@ import java.util.List;
 
 /**
  * Controller per la gestione degli hackathon.
- * Implementa ICreazioneHackathon, IElencoHackathon, IIscrizioneHackathon.
+ *
+ * Implementa le interfacce boundary definite nei sequence diagram:
+ *   - 3a iterazione: ICreazioneHackathon, IElencoHackathon, IIscrizioneHackathon
+ *   - 4a iterazione: IModificaHackathon, IEliminazioneHackathon,
+ *                    IVisualizzaHackathon, IAssegnaVincitore
  */
 @Component
-public class HackathonController implements ICreazioneHackathon, IElencoHackathon, IIscrizioneHackathon {
+public class HackathonController implements
+        ICreazioneHackathon,
+        IElencoHackathon,
+        IIscrizioneHackathon,
+        IModificaHackathon,
+        IEliminazioneHackathon,
+        IVisualizzaHackathon,
+        IAssegnaVincitore {
 
     private final HackathonService hackathonService;
     private final HackathonRepository hackathonRepository;
@@ -62,6 +77,63 @@ public class HackathonController implements ICreazioneHackathon, IElencoHackatho
         h.setId(idHackathon);
         hackathonService.iscriviTeamAdHackathon(team, h);
     }
+
+    // ============================================================
+    // === METODI PUBBLICI AGGIUNTI NELLA 4a ITERAZIONE         ===
+    // ============================================================
+
+    /**
+     * Modifica un hackathon esistente.
+     * Sequence diagram: "Modifica Hackathon".
+     */
+    public Hackathon modificaHackathon(Integer idHackathon, Hackathon dati) {
+        dati.setId(idHackathon);
+        return hackathonService.aggiornaHackathon(dati);
+    }
+
+    /**
+     * Elimina un hackathon dal sistema.
+     * Sequence diagram: "Eliminazione Hackathon".
+     */
+    public void eliminaHackathon(Integer idHackathon) {
+        hackathonService.rimuoviHackathon(idHackathon);
+    }
+
+    /**
+     * Restituisce tutti gli hackathon a cui un utente partecipa.
+     * Sequence diagram: "Visualizza I Miei Hackathon".
+     */
+    public List<Hackathon> getHackathonUtente(Integer idUtente) {
+        return hackathonService.ottieniHackathonUtente(idUtente);
+    }
+
+    /**
+     * Restituisce la lista dei team iscritti a un hackathon.
+     * Sequence diagram: "Assegna Vincitore".
+     */
+    public List<Team> getTeamPartecipanti(Integer idHackathon) {
+        return hackathonService.ottieniTeamHackathon(idHackathon);
+    }
+
+    /**
+     * Restituisce tutti gli hackathon gestiti da un organizzatore.
+     * Sequence diagram: "Modifica Hackathon".
+     */
+    public List<Hackathon> getHackathonDisponibili(Integer idOrganizzatore) {
+        return hackathonService.ottieniHackathonPerOrganizzatore(idOrganizzatore);
+    }
+
+    /**
+     * Restituisce i dettagli completi di un hackathon dato l'id.
+     * Sequence diagram: "Modifica Hackathon".
+     */
+    public Hackathon getDettagliHackathon(Integer idHackathon) {
+        return hackathonService.ottieniDettagli(idHackathon);
+    }
+
+    // ============================================================
+    // === Implementazioni interfacce boundary                  ===
+    // ============================================================
 
     // === ICreazioneHackathon ===
 
@@ -109,4 +181,68 @@ public class HackathonController implements ICreazioneHackathon, IElencoHackatho
 
     @Override
     public void notificaIscrizioneCompletata() { }
+
+    // === IModificaHackathon (4a iterazione) ===
+
+    @Override
+    public void mostraElencoHackathon(List<Hackathon> hackathons) {
+        // boundary: in un'app reale aggiornerebbe la vista
+    }
+
+    @Override
+    public void mostraModuloModifica(Hackathon h) {
+        // boundary: in un'app reale aprirebbe la form di modifica
+    }
+
+    @Override
+    public void notificaModifica() { }
+
+    @Override
+    public void mostraMessaggioErrore() { }
+
+    // === IEliminazioneHackathon (4a iterazione) ===
+
+    @Override
+    public void richiedeModuloEliminazione() { }
+
+    @Override
+    public void mostraModuloEliminazione() { }
+
+    @Override
+    public void selezionaHackathonDaEliminare(Integer idHackathon) {
+        eliminaHackathon(idHackathon);
+    }
+
+    @Override
+    public void notificaEliminazione() { }
+
+    @Override
+    public void mostraMessaggioConferma() { }
+
+    // === IVisualizzaHackathon (4a iterazione) ===
+
+    @Override
+    public void richiediVisualizzareIMieiHackathon() { }
+
+    // mostraElencoHackathon e' definito in IModificaHackathon (stessa firma):
+    // l'implementazione sopra copre entrambe le interfacce.
+
+    @Override
+    public void mostraErroreNessunHackathon() { }
+
+    // === IAssegnaVincitore (4a iterazione) ===
+
+    @Override
+    public void mostraTeamPartecipanti(List<Team> teams) { }
+
+    @Override
+    public void assegnaVincitore(Integer idHackathon, Integer idTeam) {
+        hackathonService.assegnaVincitore(idHackathon, idTeam);
+    }
+
+    @Override
+    public void notificaAssegnazione() { }
+
+    // mostraMessaggioConferma() e' gia' implementato in IEliminazioneHackathon:
+    // la stessa implementazione vale anche qui (stessa firma).
 }

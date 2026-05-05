@@ -1,5 +1,6 @@
 package it.unicam.hackathon.actors;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import it.unicam.hackathon.enums.StatoHackathon;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -29,11 +30,24 @@ public class Hackathon extends BaseAttore {
     private Integer dimensioneMinTeam;
     private Integer numMaxPersone;
     private Integer numMinPersone;
+
+    @JsonIgnoreProperties({"hackathon", "ticketAssegnati"})
     private Organizzatore organizzatore;
+
+    @JsonIgnoreProperties({"hackathon", "ticketAssegnati"})
     private Giudice giudice;
+
+    @JsonIgnoreProperties({"hackathon", "ticketAssegnati"})
     private List<Mentore> mentori = new ArrayList<>();
+
+    @JsonIgnoreProperties({"membriDelTeam", "teamLeader", "inviti"})
     private List<Team> teams = new ArrayList<>();
+
+    @JsonIgnoreProperties({"membriDelTeam", "teamLeader", "inviti"})
     private Team vincitore;
+
     private StatoHackathon stato;
+
+    @JsonIgnoreProperties({"team"})
     private List<Sottomissione> sottomissioni = new ArrayList<>();
 }

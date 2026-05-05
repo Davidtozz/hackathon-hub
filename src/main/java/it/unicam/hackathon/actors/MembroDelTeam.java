@@ -1,5 +1,6 @@
 package it.unicam.hackathon.actors;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MembroDelTeam extends BaseUtente {
 
+    /** Team di appartenenza. JsonIgnoreProperties rompe il loop di serializzazione. */
+    @JsonIgnoreProperties({"membriDelTeam", "teamLeader", "inviti"})
     private Team team;
 
     /**
