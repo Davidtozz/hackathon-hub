@@ -71,11 +71,8 @@ public class HackathonController implements
     }
 
     public void iscriviTeam(Integer idTeam, Integer idHackathon) {
-        Team team = new Team();
-        team.setId(idTeam);
-        Hackathon h = new Hackathon();
-        h.setId(idHackathon);
-        hackathonService.iscriviTeamAdHackathon(team, h);
+
+        hackathonService.iscriviTeamAdHackathon(idTeam, idHackathon);
     }
 
     // ============================================================

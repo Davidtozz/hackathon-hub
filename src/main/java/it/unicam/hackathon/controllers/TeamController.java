@@ -7,6 +7,7 @@ import it.unicam.hackathon.actors.UtenteSenzaTeam;
 import it.unicam.hackathon.interfaces.ICreazioneTeam;
 import it.unicam.hackathon.interfaces.IEliminazioneTeam;
 import it.unicam.hackathon.interfaces.ILasciaGruppo;
+import it.unicam.hackathon.repository.UtenteRepository;
 import it.unicam.hackathon.service.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -23,10 +24,12 @@ import java.util.List;
 public class TeamController implements ICreazioneTeam, IEliminazioneTeam, ILasciaGruppo {
 
     private final TeamService teamService;
+    private final UtenteRepository utenteRepository;
 
     @Autowired
-    public TeamController(TeamService teamService) {
+    public TeamController(TeamService teamService, UtenteRepository utenteRepository) {
         this.teamService = teamService;
+        this.utenteRepository = utenteRepository;
     }
 
     /**
@@ -34,7 +37,9 @@ public class TeamController implements ICreazioneTeam, IEliminazioneTeam, ILasci
      */
     public Team creaTeam(String nomeTeam, UtenteSenzaTeam creatore) {
         TeamLeader leader = new TeamLeader(creatore);
-        return teamService.creaNuovoTeam(nomeTeam, leader);
+        Team team = teamService.creaNuovoTeam(nomeTeam, leader);
+        utenteRepository.save(leader);
+        return team;
     }
 
     // ============================================================

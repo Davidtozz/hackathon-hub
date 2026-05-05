@@ -78,6 +78,26 @@ public class HackathonService {
     }
 
     /**
+     * Iscrive un team a un hackathon a partire dagli id.
+     * Carica i veri oggetti dal repository (così Team e Hackathon mantengono tutti i campi).
+     */
+    public void iscriviTeamAdHackathon(Integer idTeam, Integer idHackathon) {
+        if (idTeam == null || idHackathon == null) {
+            throw new HackathonException("Id Team o Hackathon nulli");
+        }
+        Team team = teamRepository.findById(idTeam)
+                .orElseThrow(() -> new HackathonException("Team non trovato con id " + idTeam));
+        Hackathon hackathon = hackathonRepository.findById(idHackathon)
+                .orElseThrow(() -> new HackathonException("Hackathon non trovato con id " + idHackathon));
+        if (!verificaIscrizione(idTeam, idHackathon)) {
+            throw new HackathonException("Iscrizione non consentita "
+                    + "(hackathon non in iscrizioni aperte, oppure team già iscritto)");
+        }
+        hackathon.getTeams().add(team);
+        hackathonRepository.save(hackathon);
+    }
+
+    /**
      * Apre le iscrizioni a un hackathon.
      */
     public void apriIscrizioni(Integer idHackathon) {

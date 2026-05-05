@@ -1,8 +1,10 @@
 package it.unicam.hackathon.rest;
 
+import it.unicam.hackathon.actors.BaseUtente;
 import it.unicam.hackathon.actors.Hackathon;
 import it.unicam.hackathon.actors.Organizzatore;
 import it.unicam.hackathon.actors.Team;
+import it.unicam.hackathon.exception.HackathonException;
 import it.unicam.hackathon.controllers.HackathonController;
 import it.unicam.hackathon.repository.UtenteRepository;
 import it.unicam.hackathon.rest.dto.AssegnaVincitoreRequest;
@@ -22,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -53,16 +57,62 @@ public class HackathonRestController {
     // ========================================================
 
     /** POST /api/hackathon — crea un nuovo hackathon. */
+    /** POST /api/hackathon — crea un nuovo hackathon. */
     @PostMapping
     public ResponseEntity<Hackathon> creaHackathon(@RequestBody HackathonRequest req) {
-        Organizzatore org = null;
-        if (req.getIdOrganizzatore() != null) {
-            org = (Organizzatore) utenteRepository.findById(req.getIdOrganizzatore()).orElse(null);
+        if (req == null) {
+            throw new HackathonException("Body della richiesta mancante o non in formato JSON.");
         }
-        Hackathon h = hackathonController.creaHackathon(
-                req.getNome(), req.getArgomento(),
-                req.getDataInizio(), req.getDataFine(), org);
-        return ResponseEntity.ok(h);
+        if (req.getNome() == null || req.getNome().isBlank()) {
+            throw new HackathonException("Il campo 'nome' e' obbligatorio.");
+        }
+        if (req.getDataInizio() == null) {
+            throw new HackathonException("Il campo 'dataInizio' e' obbligatorio (formato: yyyy-MM-dd'T'HH:mm:ss.SSSXXX).");
+        }
+        if (req.getDataFine() == null) {
+            throw new HackathonException("Il campo 'dataFine' e' obbligatorio.");
+        }
+        if (req.getIdOrganizzatore() == null) {
+            throw new HackathonException("Il campo 'idOrganizzatore' e' obbligatorio.");
+        }
+
+        // === RECUPERA ORGANIZZATORE ===
+        BaseUtente u = utenteRepository.findById(req.getIdOrganizzatore())
+                .orElseThrow(() -> new HackathonException(
+                        "Utente non trovato con id " + req.getIdOrganizzatore()));
+        if (!(u instanceof Organizzatore)) {
+            throw new HackathonException(
+                    "L'utente con id " + req.getIdOrganizzatore()
+                            + " non e' un Organizzatore (e' un " + u.getClass().getSimpleName()
+                            + "). Registra un utente con ruolo ORGANIZZATORE e usa quel suo id.");
+        }
+        Organizzatore org = (Organizzatore) u;
+
+        // === COSTRUISCE HACKATHON USANDO TUTTI I CAMPI DEL DTO ===
+        Hackathon h = new Hackathon();
+        h.setNome(req.getNome());
+        h.setArgomento(req.getArgomento());
+        h.setRegolamento(req.getRegolamento());
+        h.setLuogo(req.getLuogo());
+        h.setPremio(req.getPremio());
+        h.setDimensioneMaxTeam(req.getDimensioneMaxTeam());
+        h.setDimensioneMinTeam(req.getDimensioneMinTeam());
+        h.setNumMaxPersone(req.getNumMaxPersone());
+        h.setNumMinPersone(req.getNumMinPersone());
+        h.setDataInizio(req.getDataInizio());
+        h.setDataFine(req.getDataFine());
+        h.setScadenzaIscrizioni(req.getScadenzaIscrizioni() != null
+                ? req.getScadenzaIscrizioni() : req.getDataInizio());
+        h.setOrganizzatore(org);
+
+        Hackathon salvato = hackathonService.elaboraCreazioneHackathon(h);
+
+        System.out.println("[HackathonRestController] Hackathon creato: id=" + salvato.getId()
+                + ", nome=" + salvato.getNome()
+                + ", argomento=" + salvato.getArgomento()
+                + ", organizzatoreId=" + (salvato.getOrganizzatore() == null ? "null" : salvato.getOrganizzatore().getId()));
+
+        return ResponseEntity.ok(salvato);
     }
 
     /** GET /api/hackathon — elenco di tutti gli hackathon. */
@@ -88,11 +138,18 @@ public class HackathonRestController {
 
     /** POST /api/hackathon/{id}/iscrivi — iscrive un team a un hackathon. */
     @PostMapping("/{id}/iscrivi")
-    public ResponseEntity<Void> iscriviTeam(@PathVariable Integer id,
-                                            @RequestBody Map<String, Integer> body) {
+    public ResponseEntity<?> iscriviTeam(@PathVariable Integer id,
+                                         @RequestBody Map<String, Integer> body) {
+        if (body == null || body.get("idTeam") == null) {
+            return badRequest("Campo obbligatorio mancante", List.of("idTeam"), null);
+        }
         Integer idTeam = body.get("idTeam");
-        hackathonController.iscriviTeam(idTeam, id);
-        return ResponseEntity.ok().build();
+        try {
+            hackathonController.iscriviTeam(idTeam, id);
+            return ResponseEntity.ok().build();
+        } catch (HackathonException ex) {
+            return badRequest(ex.getMessage(), null, Map.of("idTeam", idTeam, "idHackathon", id));
+        }
     }
 
     // ========================================================
@@ -101,11 +158,23 @@ public class HackathonRestController {
 
     /** PUT /api/hackathon/{id} — modifica un hackathon esistente. */
     @PutMapping("/{id}")
-    public ResponseEntity<Hackathon> modificaHackathon(@PathVariable Integer id,
-                                                       @RequestBody HackathonRequest req) {
-        Hackathon dati = mapRequestToHackathon(req);
-        Hackathon aggiornato = hackathonController.modificaHackathon(id, dati);
-        return ResponseEntity.ok(aggiornato);
+    public ResponseEntity<?> modificaHackathon(@PathVariable Integer id,
+                                               @RequestBody HackathonRequest req) {
+        Organizzatore org = null;
+        if (req != null && req.getIdOrganizzatore() != null) {
+            BaseUtente u = utenteRepository.findById(req.getIdOrganizzatore()).orElse(null);
+            if (!(u instanceof Organizzatore)) {
+                return invalidOrganizzatore(req.getIdOrganizzatore(), u);
+            }
+            org = (Organizzatore) u;
+        }
+        try {
+            Hackathon dati = mapRequestToHackathon(req, org);
+            Hackathon aggiornato = hackathonController.modificaHackathon(id, dati);
+            return ResponseEntity.ok(aggiornato);
+        } catch (HackathonException ex) {
+            return badRequest(ex.getMessage(), null, null);
+        }
     }
 
     /** DELETE /api/hackathon/{id} — elimina un hackathon. */
@@ -164,8 +233,11 @@ public class HackathonRestController {
     // Helpers privati
     // ========================================================
 
-    private Hackathon mapRequestToHackathon(HackathonRequest req) {
+    private Hackathon mapRequestToHackathon(HackathonRequest req, Organizzatore org) {
         Hackathon h = new Hackathon();
+        if (req == null) {
+            return h;
+        }
         h.setId(req.getId());
         h.setNome(req.getNome());
         h.setRegolamento(req.getRegolamento());
@@ -179,11 +251,50 @@ public class HackathonRestController {
         h.setDimensioneMinTeam(req.getDimensioneMinTeam());
         h.setNumMaxPersone(req.getNumMaxPersone());
         h.setNumMinPersone(req.getNumMinPersone());
-        if (req.getIdOrganizzatore() != null) {
-            Organizzatore org = (Organizzatore) utenteRepository.findById(req.getIdOrganizzatore()).orElse(null);
+        if (org != null) {
             h.setOrganizzatore(org);
         }
         return h;
+    }
+
+    private List<String> missingFieldsForCreate(HackathonRequest req) {
+        List<String> missing = new ArrayList<>();
+        if (req == null) {
+            missing.add("body");
+            return missing;
+        }
+        if (req.getNome() == null || req.getNome().isBlank()) missing.add("nome");
+        if (req.getArgomento() == null || req.getArgomento().isBlank()) missing.add("argomento");
+        if (req.getDataInizio() == null) missing.add("dataInizio");
+        if (req.getDataFine() == null) missing.add("dataFine");
+        if (req.getIdOrganizzatore() == null) missing.add("idOrganizzatore");
+        return missing;
+    }
+
+    private ResponseEntity<Map<String, Object>> invalidOrganizzatore(Integer idOrganizzatore, BaseUtente u) {
+        Map<String, Object> details = new HashMap<>();
+        details.put("field", "idOrganizzatore");
+        details.put("value", idOrganizzatore);
+        if (u == null) {
+            return badRequest("Organizzatore non trovato", null, details);
+        }
+        details.put("expected", "Organizzatore");
+        details.put("actual", u.getClass().getSimpleName());
+        return badRequest("Utente non autorizzato come organizzatore", null, details);
+    }
+
+    private ResponseEntity<Map<String, Object>> badRequest(String message,
+                                                          List<String> missingFields,
+                                                          Map<String, Object> details) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("error", message);
+        if (missingFields != null && !missingFields.isEmpty()) {
+            body.put("missingFields", missingFields);
+        }
+        if (details != null && !details.isEmpty()) {
+            body.put("details", details);
+        }
+        return ResponseEntity.badRequest().body(body);
     }
 
     private StrategiaPagamento creaStrategia(AssegnaVincitoreRequest req) {
